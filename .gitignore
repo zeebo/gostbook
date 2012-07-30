@@ -1,4 +1,6 @@
 *
+!.heroku
+!Procfile
 !.gitignore
 !*.go
 !*.html

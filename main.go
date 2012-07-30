@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"labix.org/v2/mgo"
 	"net/http"
+	"os"
 )
 
 var index = template.Must(template.ParseFiles(
@@ -40,14 +41,14 @@ var session *mgo.Session
 
 func main() {
 	var err error
-	session, err = mgo.Dial("localhost")
+	session, err = mgo.Dial(os.Getenv("DATABASE_URL"))
 	if err != nil {
 		panic(err)
 	}
 
 	http.HandleFunc("/", hello)
 	http.HandleFunc("/sign", sign)
-	if err = http.ListenAndServe(":8080", nil); err != nil {
+	if err = http.ListenAndServe(":"+os.Getenv("PORT"), nil); err != nil {
 		panic(err)
 	}
 }
