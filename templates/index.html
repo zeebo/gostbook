@@ -6,6 +6,19 @@
     <p>Hello, and welcome to my guestbook, because it's 1997!</p>
 
     <ul class="guests">
-        <li>...</li>
+        {{ range . }}
+        <li>
+            <blockquote>{{ .Message }}</blockquote>
+            <p>- <cite>{{ .Name }}</cite>, <time>{{ .Timestamp }}</time></p>
+        </li>
+        {{ end }}
     </ul>
+
+    <hr>
+
+    <form action="/sign" method="POST">
+        <p>Name: <input type="text" name="name"></p>
+        <p>Message: <textarea name="message" rows="10" cols="40"></textarea></p>
+        <p><button>Sign</button></p>
+    </form>
 {{ end }}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"html/template"
+	"labix.org/v2/mgo"
 	"net/http"
 )
 
@@ -11,14 +12,42 @@ var index = template.Must(template.ParseFiles(
 ))
 
 func hello(w http.ResponseWriter, req *http.Request) {
-	if err := index.Execute(w, nil); err != nil {
+	//grab a clone of the session and close it when the
+	//function returns
+	s := session.Clone()
+	defer s.Close()
+
+	//set up the collection and query
+	coll := s.DB("gostbook").C("entries")
+	query := coll.Find(nil).Sort("-timestamp")
+
+	//execute the query
+	//TODO: add pagination :)
+	var entries []Entry
+	if err := query.All(&entries); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	//execute the template
+	if err := index.Execute(w, entries); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
+var session *mgo.Session
+
 func main() {
+	var err error
+	session, err = mgo.Dial("localhost")
+	if err != nil {
+		panic(err)
+	}
+
 	http.HandleFunc("/", hello)
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	http.HandleFunc("/sign", sign)
+	if err = http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}
 }
