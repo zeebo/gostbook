@@ -23,7 +23,7 @@ func sign(w http.ResponseWriter, req *http.Request) {
 	s := session.Clone()
 	defer s.Close()
 
-	coll := s.DB("gostbook").C("entries")
+	coll := s.DB(database).C("entries")
 	if err := coll.Insert(entry); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

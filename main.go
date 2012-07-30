@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"labix.org/v2/mgo"
 	"net/http"
+	"net/url"
 	"os"
 )
 
@@ -19,7 +20,7 @@ func hello(w http.ResponseWriter, req *http.Request) {
 	defer s.Close()
 
 	//set up the collection and query
-	coll := s.DB("gostbook").C("entries")
+	coll := s.DB(database).C("entries")
 	query := coll.Find(nil).Sort("-timestamp")
 
 	//execute the query
@@ -38,10 +39,17 @@ func hello(w http.ResponseWriter, req *http.Request) {
 }
 
 var session *mgo.Session
+var database string
 
 func main() {
 	var err error
-	session, err = mgo.Dial(os.Getenv("DATABASE_URL"))
+	u := os.Getenv("DATABASE_URL")
+	parsed, err := url.Parse(u)
+	if err != nil {
+		panic(err)
+	}
+	database = parsed.Path[1:]
+	session, err = mgo.Dial(u)
 	if err != nil {
 		panic(err)
 	}
