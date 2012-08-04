@@ -20,12 +20,6 @@ func hello(w http.ResponseWriter, req *http.Request, ctx *Context) (err error) {
 }
 
 func sign(w http.ResponseWriter, req *http.Request, ctx *Context) (err error) {
-	//make sure we got post
-	if req.Method != "POST" {
-		http.NotFound(w, req)
-		return
-	}
-
 	entry := NewEntry()
 	entry.Name = req.FormValue("name")
 	entry.Message = req.FormValue("message")
@@ -42,6 +36,6 @@ func sign(w http.ResponseWriter, req *http.Request, ctx *Context) (err error) {
 		return
 	}
 
-	http.Redirect(w, req, "/", http.StatusTemporaryRedirect)
+	http.Redirect(w, req, reverse("index"), http.StatusSeeOther)
 	return
 }

@@ -16,7 +16,7 @@
 
     <hr>
 
-    <form action="/sign" method="POST">
+    <form action="{{ reverse "sign" }}" method="POST">
         <p>Name: <input type="text" name="name"></p>
         <p>Message: <textarea name="message" rows="10" cols="40"></textarea></p>
         <p><button>Sign</button></p>
