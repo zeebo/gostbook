@@ -24,7 +24,7 @@ func (u *User) SetPassword(password string) {
 
 //Login validates and returns a user object if they exist in the database.
 func Login(ctx *Context, username, password string) (u *User, err error) {
-	err = ctx.C("users").Find(bson.M{"username": username}).One(u)
+	err = ctx.C("users").Find(bson.M{"username": username}).One(&u)
 	if err != nil {
 		return
 	}

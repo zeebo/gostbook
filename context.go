@@ -3,12 +3,14 @@ package main
 import (
 	"code.google.com/p/gorilla/sessions"
 	"labix.org/v2/mgo"
+	"labix.org/v2/mgo/bson"
 	"net/http"
 )
 
 type Context struct {
 	Database *mgo.Database
 	Session  *sessions.Session
+	User     *User
 }
 
 func (c *Context) Close() {
@@ -22,8 +24,18 @@ func (c *Context) C(name string) *mgo.Collection {
 
 func NewContext(req *http.Request) (*Context, error) {
 	sess, err := store.Get(req, "gostbook")
-	return &Context{
+	ctx := &Context{
 		Database: session.Clone().DB(database),
 		Session:  sess,
-	}, err
+	}
+	if err != nil {
+		return ctx, err
+	}
+
+	//try to fill in the user from the session
+	if uid, ok := sess.Values["user"].(bson.ObjectId); ok {
+		err = ctx.C("users").Find(bson.M{"_id": uid}).One(&ctx.User)
+	}
+
+	return ctx, err
 }

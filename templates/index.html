@@ -6,7 +6,7 @@
     <p>Hello, and welcome to my guestbook, because it's 1997!</p>
 
     <ul class="guests">
-        {{ range . }}
+        {{ range .entries }}
         <li>
             <blockquote>{{ .Message }}</blockquote>
             <p>- <cite>{{ .Name }}</cite>, <time>{{ .Timestamp }}</time></p>
@@ -15,12 +15,13 @@
     </ul>
 
     <hr>
-    <a href="{{ reverse "login" }}">login</a>
-    <hr>
-
+    {{ if .ctx.User }}
     <form action="{{ reverse "sign" }}" method="POST">
-        <p>Name: <input type="text" name="name"></p>
+        <p>Name: {{ .ctx.User.Username }} (<a href="{{ reverse "logout" }}">Logout</a>)</p>
         <p>Message: <textarea name="message" rows="10" cols="40"></textarea></p>
         <p><button>Sign</button></p>
     </form>
+    {{ else }}
+        <h1>Please <a href="{{ reverse "login" }}">login</a> to sign.</h1>
+    {{ end }}
 {{ end }}

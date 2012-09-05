@@ -3,8 +3,10 @@ package main
 import (
 	"code.google.com/p/gorilla/pat"
 	"code.google.com/p/gorilla/sessions"
+	"encoding/gob"
 	"fmt"
 	"labix.org/v2/mgo"
+	"labix.org/v2/mgo/bson"
 	"net/http"
 	"os"
 )
@@ -21,6 +23,10 @@ func reverse(name string, things ...interface{}) string {
 		panic(err)
 	}
 	return u.Path
+}
+
+func init() {
+	gob.Register(bson.ObjectId(""))
 }
 
 var store sessions.Store
@@ -40,6 +46,8 @@ func main() {
 
 	router = pat.New()
 	router.Add("GET", "/login", handler(loginForm)).Name("login")
+	router.Add("GET", "/logout", handler(logout)).Name("logout")
+	router.Add("POST", "/login", handler(login))
 	router.Add("GET", "/", handler(hello)).Name("index")
 	router.Add("POST", "/sign", handler(sign)).Name("sign")
 

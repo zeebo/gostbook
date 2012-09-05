@@ -2,6 +2,11 @@
 
 {{ define "content" }}
     <h1>Login</h1>
+
+    {{ range .ctx.Session.Flashes }}
+        <h2>{{ . }}</h2>
+    {{ end }}
+
     <form action="{{ reverse "login" }}" method="POST">
         <p>Username: <input type="text" name="username"></p>
         <p>Password: <input type="password" name="password"></p>

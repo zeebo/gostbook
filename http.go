@@ -12,6 +12,7 @@ func (h handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	ctx, err := NewContext(req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	defer ctx.Close()
 
@@ -20,11 +21,13 @@ func (h handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	err = h(buf, req, ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	//save the session
 	if err = ctx.Session.Save(req, buf); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	//apply the buffered response to the writer
