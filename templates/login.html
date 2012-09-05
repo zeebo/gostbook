@@ -1,0 +1,10 @@
+{{ define "title" }}Guestbook - Login{{ end }}
+
+{{ define "content" }}
+    <h1>Login</h1>
+    <form action="{{ reverse "login" }}" method="POST">
+        <p>Username: <input type="text" name="username"></p>
+        <p>Password: <input type="password" name="password"></p>
+        <p><button>Login</button></p>
+    </form>
+{{ end }}
