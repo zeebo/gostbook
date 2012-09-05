@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+	"thegoods.biz/httpbuf"
+)
 
 type handler func(http.ResponseWriter, *http.Request, *Context) error
 
@@ -13,8 +16,17 @@ func (h handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	defer ctx.Close()
 
 	//run the handler and grab the error, and report it
-	err = h(w, req, ctx)
+	buf := new(httpbuf.Buffer)
+	err = h(buf, req, ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+
+	//save the session
+	if err = ctx.Session.Save(req, buf); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	//apply the buffered response to the writer
+	buf.Apply(w)
 }

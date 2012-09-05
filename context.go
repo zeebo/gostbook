@@ -1,12 +1,14 @@
 package main
 
 import (
+	"code.google.com/p/gorilla/sessions"
 	"labix.org/v2/mgo"
 	"net/http"
 )
 
 type Context struct {
 	Database *mgo.Database
+	Session  *sessions.Session
 }
 
 func (c *Context) Close() {
@@ -19,7 +21,9 @@ func (c *Context) C(name string) *mgo.Collection {
 }
 
 func NewContext(req *http.Request) (*Context, error) {
+	sess, err := store.Get(req, "gostbook")
 	return &Context{
 		Database: session.Clone().DB(database),
-	}, nil
+		Session:  sess,
+	}, err
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"code.google.com/p/gorilla/pat"
+	"code.google.com/p/gorilla/sessions"
 	"fmt"
 	"labix.org/v2/mgo"
 	"net/http"
@@ -22,6 +23,7 @@ func reverse(name string, things ...interface{}) string {
 	return u.Path
 }
 
+var store sessions.Store
 var session *mgo.Session
 var database string
 var router *pat.Router
@@ -33,6 +35,8 @@ func main() {
 		panic(err)
 	}
 	database = session.DB("").Name
+
+	store = sessions.NewCookieStore([]byte(os.Getenv("KEY")))
 
 	router = pat.New()
 	router.Add("GET", "/login", handler(loginForm)).Name("login")
