@@ -42,13 +42,27 @@ func main() {
 	}
 	database = session.DB("").Name
 
+	//create an index for the username field on the users collection
+	if err := session.DB("").C("users").EnsureIndex(mgo.Index{
+		Key:    []string{"username"},
+		Unique: true,
+	}); err != nil {
+		panic(err)
+	}
+
 	store = sessions.NewCookieStore([]byte(os.Getenv("KEY")))
 
 	router = pat.New()
 	router.Add("GET", "/login", handler(loginForm)).Name("login")
-	router.Add("GET", "/logout", handler(logout)).Name("logout")
 	router.Add("POST", "/login", handler(login))
+
+	router.Add("GET", "/register", handler(registerForm)).Name("register")
+	router.Add("POST", "/register", handler(register))
+
+	router.Add("GET", "/logout", handler(logout)).Name("logout")
+
 	router.Add("GET", "/", handler(hello)).Name("index")
+
 	router.Add("POST", "/sign", handler(sign)).Name("sign")
 
 	if err = http.ListenAndServe(":"+os.Getenv("PORT"), router); err != nil {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"labix.org/v2/mgo/bson"
 	"net/http"
 )
 
@@ -44,6 +45,12 @@ func sign(w http.ResponseWriter, req *http.Request, ctx *Context) (err error) {
 		return
 	}
 
+	//ignore errors: it's ok if the post count is wrong. we can always look at
+	//the entries table to fix.
+	ctx.C("users").Update(bson.M{"_id": ctx.User.ID}, bson.M{
+		"$inc": bson.M{"posts": 1},
+	})
+
 	http.Redirect(w, req, reverse("index"), http.StatusSeeOther)
 	return
 }
@@ -71,6 +78,32 @@ func login(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 
 func logout(w http.ResponseWriter, req *http.Request, ctx *Context) error {
 	delete(ctx.Session.Values, "user")
+	http.Redirect(w, req, reverse("index"), http.StatusSeeOther)
+	return nil
+}
+
+func registerForm(w http.ResponseWriter, req *http.Request, ctx *Context) (err error) {
+	return T("register.html").Execute(w, map[string]interface{}{
+		"ctx": ctx,
+	})
+}
+
+func register(w http.ResponseWriter, req *http.Request, ctx *Context) error {
+	username, password := req.FormValue("username"), req.FormValue("password")
+
+	u := &User{
+		Username: username,
+		ID:       bson.NewObjectId(),
+	}
+	u.SetPassword(password)
+
+	if err := ctx.C("users").Insert(u); err != nil {
+		ctx.Session.AddFlash("Problem registering user.")
+		return registerForm(w, req, ctx)
+	}
+
+	//store the user id in the values and redirect to index
+	ctx.Session.Values["user"] = u.ID
 	http.Redirect(w, req, reverse("index"), http.StatusSeeOther)
 	return nil
 }

@@ -1,0 +1,15 @@
+{{ define "title" }}Guestbook - Register{{ end }}
+
+{{ define "content" }}
+    <h1>Register</h1>
+
+    {{ range .ctx.Session.Flashes }}
+        <h2>{{ . }}</h2>
+    {{ end }}
+
+    <form action="{{ reverse "register" }}" method="POST">
+        <p>Username: <input type="text" name="username"></p>
+        <p>Password: <input type="password" name="password"></p>
+        <p><button>Login</button></p>
+    </form>
+{{ end }}

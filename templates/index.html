@@ -22,6 +22,9 @@
         <p><button>Sign</button></p>
     </form>
     {{ else }}
-        <h1>Please <a href="{{ reverse "login" }}">login</a> to sign.</h1>
+        <h1>Please
+            <a href="{{ reverse "login" }}">login</a> or
+            <a href="{{ reverse "register" }}">register</a>
+        to sign.</h1>
     {{ end }}
 {{ end }}
